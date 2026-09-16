@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top of the Money 公式ポータル 完全版</title>
+
+<link rel="stylesheet" href="style.css"></head>
+<body>
+
+<!-- ログイン画面 -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="logo logo-font gold-text" style="font-size: 42px; margin-bottom: 5px;">Top of the Money</div>
+    <div style="font-size: 12px; color:var(--text-sub); margin-bottom:20px;">公式ポータル 認証システム</div>
+    
+    <div style="text-align: left; font-size: 13px; color: var(--gold);">ログインID / メールアドレス</div>
+    <input type="text" id="login-id" class="input-field" placeholder="メールアドレス">
+    
+    <div style="text-align: left; font-size: 13px; color: var(--gold);">パスワード (必須)</div>
+    <input type="password" id="login-pass" class="input-field" placeholder="パスワードを入力">
+    
+    <button class="btn" style="width:100%; padding:15px;" onclick="login()">ログイン</button>
+  </div>
+</div>
+
+<header>
+  <div class="header-top">
+    <div class="logo logo-font gold-text">Top of the Money</div>
+    <div class="status-area">
+      <div class="point-box">💰 <span id="pt-display">15,000</span> <span style="font-size:14px; color:var(--gold);">$s</span></div>
+      <div class="user-menu-btn" onclick="toggleMenu(event)">
+        <span class="role-badge" id="head-role">未設定</span>
+        <div><span id="user-name" style="font-weight:bold;">GUEST</span> ▼</div>
+      </div>
+      <div class="dropdown-menu" id="user-dropdown">
+        <div class="dropdown-item" onclick="openAccountPanel()">◎ アカウント</div><div class="dropdown-item" onclick="openCollectionPanel()">▣ コレクション</div><div class="dropdown-item" id="admin-menu-item" style="display:none;" onclick="openAdminPanel()">⚙ 管理</div><div class="dropdown-item" onclick="openSettings()">⚙ 外観設定</div>
+        <div class="dropdown-item" style="color: #ef4444;" onclick="logout()">🚪 ログアウト</div>
+      </div>
+    </div>
+  </div>
+<div class="tabs premium-tabs" id="main-tabs">
+<button class="tab-btn active" data-tab="top">ホーム</button>
+<button class="tab-btn" data-tab="news">ニュース</button>
+<button class="tab-btn" data-tab="live">ライブ</button>
+<button class="tab-btn" data-tab="members">メンバー</button>
+<button class="tab-btn" data-tab="shop">ショップ</button>
+<button class="tab-btn" data-tab="market">マーケット</button>
+<button class="tab-btn" data-tab="fx">FX</button>
+<button class="tab-btn" data-tab="fc">ドルズ</button>
+</div>
+</header><div class="ticker-shell">
+<div class="ticker-collapsed"><span class="live-indicator"></span><span>MARKET LIVE</span><strong id="ticker-current">TOP/JPY 148.532</strong><button id="ticker-open" class="ticker-arrow">▼</button></div>
+<div class="ticker-expanded" id="ticker-expanded" hidden>
+<div class="ticker-expanded-head"><strong>MARKET LIVE</strong><button id="ticker-close" class="ticker-arrow">▲</button></div>
+<div class="ticker-grid">
+<div class="ticker-cell"><span>TOP/JPY</span><strong id="ticker-fx">148.532</strong><em id="ticker-fx-change">+0.00%</em></div>
+<div class="ticker-cell"><span>十万円の水</span><strong id="ticker-water">10,000 $s</strong><small id="ticker-water-stock">本日残り15個</small></div>
+<div class="ticker-cell"><span>ペンライト</span><strong id="ticker-penlight">100 $s</strong><small id="ticker-penlight-stock">本日残り15個</small></div>
+<div class="ticker-cell"><span>$s総流通</span><strong id="ticker-supply">1,000,000 $s</strong><small>トプマネ銀行</small></div>
+</div></div></div>
+
+<div class="container">
+  
+  <!-- トップ -->
+  <div id="tab-top" class="tab-content active">
+    <!-- 最新のお知らせ枠 -->
+    <div class="panel" style="padding:15px 25px;">
+      <h3 style="font-size:16px; margin-bottom:10px; color:var(--gold); display:flex; justify-content:space-between;">
+        <span>最新のお知らせ</span>
+        <span style="font-size:12px; cursor:pointer; text-decoration:underline;" onclick="switchTab('news')">すべて見る</span>
+      </h3>
+      <div id="home-latest-news"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Top of the Money 公式ポータル</h2>
+      <p style="line-height:1.8;">「金と愛」をテーマに掲げるアイドルグループ、トプマネ。<br>
+      ここは選ばれしファン（ドルズ）や関係者が集う公式ポータルサイトです。<br>
+      グッズ価格や為替レートは<strong>現実の日時（秒単位）の複雑なアルゴリズムにより常に変動</strong>しています。<br>
+      波を読み、安い時に買い、高い時に売ることで資産（$s）を築き上げてください。</p>
+    </div>
+  </div>
+
+  <!-- お知らせタブ -->
+  <div id="tab-news" class="tab-content">
+    <div class="panel">
+      <h2>お知らせ一覧</h2>
+      <div id="news-list-container"></div>
+    </div>
+  </div>
+
+
+
+<div id="tab-market" class="tab-content">
+<div class="panel market-panel">
+<div class="market-hero"><div><div class="hero-kicker">USER MARKET</div><h2>マーケット</h2><p>ユーザー自身が価格を決めて出品できる、トプマネ銀行の公開市場。</p></div><button class="btn" id="open-listing-modal">物を売る</button></div>
+<div class="market-toolbar"><div class="market-search-wrap"><span>⌕</span><input id="market-search" placeholder="商品名・説明・#ハッシュタグで検索"></div><button class="filter-btn" id="market-refresh">更新</button></div>
+<div id="market-tags" class="market-tag-row"></div>
+<div class="market-summary"><div><span>出品中</span><strong id="market-count">0</strong></div><div><span>今日の取引</span><strong id="market-sales-today">0</strong></div><div><span>手数料</span><strong>7% + 2%</strong></div></div>
+<div id="market-list" class="market-list"></div>
+</div></div>
+
+<div id="tab-live" class="tab-content"><div class="panel"><div class="hero-kicker">LIVE / EVENT</div><h2>ライブ</h2><div class="event-grid">
+<article class="event-card event-main"><div class="event-date">09.18</div><span>LIVE AFTER EVENT</span><h3>握手会</h3><p>握手・サイン・トーク・撮影可。SNSへの掲載はご遠慮ください。</p><strong>参加費 1,000$s</strong></article>
+<article class="event-card"><span>活動曜日</span><strong>金曜日</strong><small>二週間に1回（基本は）</small></article>
+<article class="event-card"><span>活動場所</span><strong>6年4組</strong><small>クラブ風ステージ</small></article>
+</div></div></div>
+
+<div id="tab-members" class="tab-content"><div class="panel"><div class="hero-kicker">MEMBERS</div><h2>メンバー</h2><div class="member-grid premium-member-grid">
+<article class="member-profile"><div class="member-photo">N</div><small>MEMBER 01</small><h3>並木</h3><span>NAMIKI</span><p>「握手会で待ってるぜ」</p></article>
+<article class="member-profile"><div class="member-photo">M</div><small>MEMBER 02</small><h3>森山</h3><span>MORIYAMA</span><p>「絶対来てくれよな」</p></article>
+<article class="member-profile"><div class="member-photo">Y</div><small>MEMBER 03</small><h3>吉田</h3><span>YOSHIDA</span><p>Top of the Money</p></article>
+</div><div class="staff-strip"><span>PRODUCER</span><strong>茶屋</strong><span>FC経営</span><strong>茶屋 / 並木</strong><span>STAFF</span><strong>マネージャー・現場・宣伝・音楽プロ</strong></div></div></div>
+
+<div id="tab-account" class="tab-content"><div class="panel account-panel"><div class="account-cover"><span>ACCOUNT</span><b id="account-cover-status">一般ファン</b></div>
+<div class="account-main-grid"><div><div class="profile-head"><div class="profile-avatar" id="profile-avatar">G</div><div><div class="profile-name" id="account-display-name">GUEST</div><div class="role-pill" id="account-status">一般ファン</div></div></div>
+<div class="account-balance-card"><span>残高</span><strong id="account-balance">15,000 $s</strong></div></div>
+<div class="account-summary"><div><span>所持グッズ</span><strong id="account-item-count">0</strong></div><div><span>取引</span><strong id="account-trade-count">0</strong></div><div><span>FXポジション</span><strong id="account-fx-state">なし</strong></div></div></div>
+<div class="account-section"><div class="account-section-head"><h3>プロフィール</h3><small>Firebaseで管理</small></div><label>表示名<input id="account-name-input" class="input-field" maxlength="40"></label><button class="btn" id="save-account">保存する</button></div>
+<div class="account-section"><div class="account-section-head"><h3>取引コード確認</h3><small>現物受け渡し用</small></div><p class="settings-help">購入者から提示されたコードを入力すると、トプマネ銀行の取引記録と照合できます。</p><div class="verify-row"><input id="trade-code-check" class="input-field" placeholder="TM-XXXX-XXXXXXXX"><button class="btn" id="verify-trade-code">確認</button></div><div id="trade-code-result" class="verify-result"></div></div>
+</div></div>
+
+<div id="tab-admin" class="tab-content"><div class="panel admin-panel"><div class="admin-head"><div><div class="hero-kicker">ADMINISTRATION</div><h2>管理</h2></div><span class="admin-status">権限：<b id="admin-status">—</b></span></div>
+<div class="admin-command-grid"><button class="admin-command" data-admin-page="users">ユーザー</button><button class="admin-command" data-admin-page="money">$s管理</button><button class="admin-command" data-admin-page="items">グッズ / 在庫</button><button class="admin-command" data-admin-page="market">マーケット</button><button class="admin-command" data-admin-page="reports">通報</button><button class="admin-command" data-admin-page="codes">コード</button><button class="admin-command" data-admin-page="bank">トプマネ銀行</button></div>
+<div id="admin-view" class="admin-view"></div></div></div>
+
+  <!-- ショップ一覧 -->
+  <div id="tab-shop" class="tab-content">
+    <div class="panel">
+      <h2>公式ショップ (時価変動制)</h2>
+      <p style="font-size:13px; color:var(--text-sub); margin-bottom: 20px;">グッズをクリックして相場チャートを確認し、タイミングを見極めて購入してください。</p>
+      <div class="grid">
+        <div class="card" onclick="openShopModal('water')">
+          <div class="item-img">💧</div>
+          <div style="font-size:20px; font-weight:bold;">十万円の水</div>
+          <div class="price-display">時価: <span id="list-price-water">---</span> $s</div>
+          <div style="font-size:13px; color:var(--text-sub);">詳細と相場を見る</div>
+        </div>
+        <div class="card" onclick="openShopModal('penlight')">
+          <div class="item-img">🪄</div>
+          <div style="font-size:20px; font-weight:bold;">ペンライト</div>
+          <div class="price-display">時価: <span id="list-price-penlight">---</span> $s</div>
+          <div style="font-size:13px; color:var(--text-sub);">詳細と相場を見る</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 持ち物 -->
+  <div id="tab-inventory" class="tab-content">
+    <div class="panel">
+      <h2>持ち物 (資産管理)</h2>
+      <p style="font-size:13px; color:var(--text-sub); margin-bottom:15px;">
+        ※売却時には時価から「トプマネ税(7%)」が引かれます。<br>
+        ※購入から1分(60秒)を超えると新品扱いではなくなり、毎秒売却額が低下します。
+      </p>
+      <div id="inventory-list"></div>
+    </div>
+  </div>
+
+
+  <!-- 推し部屋 -->
+  <div id="tab-room" class="tab-content">
+    <div class="panel">
+      <h2>推し部屋 / COLLECTION ROOM</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px;">
+        <div class="badge-card"><div class="stat-label">FAN POWER</div><div class="stat-value gold" id="fan-power">0</div></div>
+        <div class="badge-card"><div class="stat-label">CONTRIBUTION</div><div class="stat-value" id="contribution">0 $s</div></div>
+        <div class="badge-card"><div class="stat-label">TITLE</div><div class="stat-value" id="collector-title" style="font-size:17px;">新米ドルズ</div></div>
+      </div>
+      <div class="collection-room">
+        <div class="room-wall-line"></div><div class="room-floor"></div>
+        <div class="room-shelf" id="room-shelf"></div>
+      </div>
+      <div style="margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="badge-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><strong>称号ランク</strong><span id="title-rank">1</span></div><div class="progress"><span id="fan-progress"></span></div><div style="font-size:12px;color:var(--text-sub);margin-top:7px;">飾った種類・数・貢献度で上昇します。</div></div>
+        <div class="badge-card"><strong>部屋を整える</strong><p style="font-size:12px;color:var(--text-sub);margin:6px 0 10px;">所持グッズから好きなものを飾れます。</p><button class="btn" onclick="decorateAllOwned()">所持品をまとめて飾る</button></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>グッズを愛でる</h2>
+      <div class="action-grid">
+        <div class="action-card"><div style="font-size:28px">🪄</div><strong>ペンライトを振る</strong><p style="font-size:12px;color:var(--text-sub);margin:5px 0 10px;">ライブ熱気を上げます。</p><button class="btn" onclick="useMerch('penlight')">振る</button></div>
+        <div class="action-card"><div style="font-size:28px">💧</div><strong>十万円の水を見る</strong><p style="font-size:12px;color:var(--text-sub);margin:5px 0 10px;">相場と愛をじっくり眺めます。</p><button class="btn" onclick="useMerch('water')">見る</button></div>
+      </div>
+      <div style="margin-top:16px;"><div class="heat-wrap"><div><div style="font-size:12px;color:var(--text-sub);">LIVE HEAT</div><div class="progress"><span id="heat-progress"></span></div></div><div class="heat-value"><span id="heat-value">0</span>%</div></div></div>
+      <div id="room-message" style="margin-top:13px;color:var(--gold);font-weight:800;min-height:24px;"></div>
+    </div>
+  </div>
+
+  <!-- 貢ぎ所 -->
+  <div id="tab-oshi" class="tab-content">
+    <div class="panel">
+      <h2>貢ぎ所</h2>
+      <div style="text-align: center; background: var(--card-bg); padding: 30px; border-radius: 8px; border: 1px solid var(--border-color);">
+        <p style="margin-bottom:20px;">愛の大きさは金額で決まる。推しメンバーに$sを貢いでください。</p>
+        <select id="oshi-member" style="padding:10px; font-size:18px; margin-bottom:15px; width:200px; background:var(--bg-main); color:var(--text-main); border:1px solid var(--gold);">
+          <option value="並木">並木 (NAMIKI)</option>
+          <option value="森山">森山 (MORIYAMA)</option>
+          <option value="吉田">吉田 (YOSHIDA)</option>
+        </select><br>
+        <input type="number" id="oshi-amount" value="1000" min="1" style="padding:10px; font-size:18px; width:150px; text-align:right; background:var(--bg-main); color:var(--text-main); border:1px solid var(--gold);"> 
+        <span style="font-size:18px; font-weight:bold;">$s</span><br><br>
+        <button class="btn" style="width:200px;" onclick="mitsugu()">貢ぐ</button>
+        <div id="oshi-msg" style="margin-top:20px; font-weight:bold; color:#f472b6; font-size:18px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FX為替 -->
+  <div id="tab-fx" class="tab-content">
+    <div class="panel">
+      <h2 style="text-align:center;">トプマネ為替相場 (TOP/JPY)</h2>
+      <p style="font-size:13px;color:var(--text-sub);text-align:center;margin-bottom:15px;">$sを掛けて相場を読む、トプマネ式レバレッジ取引。</p>
+      <div class="fx-trade-box">
+        <div>
+          <canvas id="fxChart" class="chart-canvas"></canvas>
+          <div class="fx-rate-display" id="fx-rate-display">148.000</div>
+        </div>
+        <div class="trade-summary">
+          <div class="fx-price-board">
+            <div class="fx-mini"><div style="font-size:11px;color:var(--text-sub);">BALANCE</div><strong id="fx-balance">15,000 $s</strong></div>
+            <div class="fx-mini"><div style="font-size:11px;color:var(--text-sub);">LEVERAGE</div><strong id="fx-leverage-display">2x</strong></div>
+          </div>
+          <div style="margin-top:14px;font-size:12px;color:var(--text-sub);">掛金</div>
+          <input id="fx-stake" type="number" min="1" value="1000" class="input-field" style="margin:7px 0 10px;">
+          <div style="font-size:12px;color:var(--text-sub);margin-bottom:7px;">倍率</div>
+          <div class="leverage-row" id="leverage-row">
+            <button class="lev-btn active" onclick="selectLeverage(2,this)">2x</button><button class="lev-btn" onclick="selectLeverage(4,this)">4x</button><button class="lev-btn" onclick="selectLeverage(6,this)">6x</button><button class="lev-btn" onclick="selectLeverage(10,this)">10x</button>
+          </div>
+          <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="btn" onclick="openFXTrade('buy')">BUY / 上昇</button><button class="btn btn-danger" onclick="openFXTrade('sell')">SELL / 下落</button></div>
+          <div id="fx-position" class="trade-position" style="display:none"></div>
+        </div>
+      </div>
+      <div style="margin-top:14px;font-size:12px;color:var(--text-sub);">※これはサイト内ゲーム用の$s取引です。実際のお金は使用しません。</div>
+    </div>
+  </div>
+
+  <!-- FC(DOLLS) -->
+  <div id="tab-fc" class="tab-content">
+    <div class="panel">
+      <h2 style="text-align:center; border:none;">OFFICIAL FANCLUB</h2>
+      
+      <!-- 未入会時 -->
+      <div id="fc-unregistered" style="text-align:center; padding:30px 0;">
+        <p style="margin-bottom:20px;">公式ファンクラブ「ドルズ」の専用エリアです。<br>入会手続きを行うことで会員証が発行され、ステータスが更新されます。</p>
+        <button class="btn" style="padding:15px 30px; font-size:18px;" onclick="joinFC()">ファンクラブに入会する (無料)</button>
+      </div>
+
+      <!-- 入会済み時 -->
+      <div id="fc-registered" style="display:none;">
+        <div class="vip-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <span class="gold-text" style="font-family:'Cinzel', serif; font-size:18px; font-weight:bold;">DOLLS VIP CARD</span>
+            <span style="font-size:11px; background:var(--gold); color:#000; padding:2px 8px; border-radius:20px; font-weight:bold;">MEMBERSHIP</span>
+          </div>
+          <div style="font-size:11px; color:#888;">STATUS / ROLE</div>
+          <div id="fc-role" style="font-size:16px; color:var(--gold); margin-bottom:10px; font-weight:bold;">ドルズ会員</div>
+          <div style="font-size:11px; color:#888;">MEMBER NAME</div>
+          <div id="fc-member-name" style="font-size:24px; color:#fff; font-weight:bold; margin-bottom:20px;">GUEST</div>
+          <div style="font-size:12px; line-height:1.8; color:#ccc; border-top:1px dashed rgba(212,175,55,0.3); padding-top:15px;">
+            トプマネ公式ファンクラブ「ドルズ」。<br>
+            活動拠点：6年4組（隔週金曜日）
+          </div>
+        </div>
+        <p style="text-align:center; margin-top:20px; font-size:14px; color:var(--text-sub);">ご入会ありがとうございます。これからもトプマネの応援をよろしくお願いいたします。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ヘルプ -->
+  <div id="tab-help" class="tab-content">
+    <div class="panel">
+      <h2>トプマネ用語・裏設定録</h2>
+      <div class="dic-term">Top of the Money（トプマネ）</div>
+      <div class="dic-desc">「尽きぬ金と愛」をテーマに活動する謎多きアイドルグループ。「世の中やっぱ金だよね」と豪語する彼女たちのパフォーマンスは、金への異常な執着とシュールな世界観を放つ。</div>
+
+      <div class="dic-term">6年4組</div>
+      <div class="dic-desc">彼女たちが二週間に1回（金曜）活動する拠点。表向きはただの教室だが、ライブ中はネオンと札束が舞う「クラブ風ステージ」へと変貌する。</div>
+
+      <div class="dic-term">十万円の水 / 高級トプマネ出汁</div>
+      <div class="dic-desc">物販で販売されている飲料。中には「高級トプマネ出汁」が含まれているとされる。この出汁の正体はメンバーの汗とも愛の結晶とも噂されているが、飲むと相場を読む力が上がると信じられている。時価によって価格が乱高下する。</div>
+
+      <div class="dic-term">トプマネ為替・税金システム</div>
+      <div class="dic-desc">「$s（ドルズ）」は現実の時間の波形によって価値が決定される。グッズを転売して稼ぐことも可能だが、売却時には必ず「トプマネ税（7%）」が徴収され、1分以上保有すると劣化ペナルティを受ける厳しい資本主義のルールが敷かれている。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 商品詳細・購入モーダル -->
+<div class="modal" id="shop-modal">
+  <div class="modal-box" id="modal-box" style="text-align:center;">
+    <button class="close-btn" onclick="closeShopModal()">✕</button>
+    <div id="modal-item-icon" style="font-size:40px; margin-bottom:10px;"></div>
+    <h2 id="modal-item-name" style="border:none; margin:0;">商品名</h2>
+    <canvas id="modal-chart" class="chart-canvas" style="height:150px;"></canvas>
+    <div style="font-size:14px; color:var(--text-sub);">現在の時価</div>
+    <div id="modal-item-price" style="font-size:32px; font-family:'Noto Sans JP'; color:var(--gold); font-weight:bold; margin-bottom:20px;">--- $s</div>
+    
+    <button id="modal-buy-btn" class="btn" style="width:100%; padding:15px; font-size:18px;" onclick="executeBuy()">購入する</button>
+    <div id="modal-error-msg" style="color:#ef4444; font-weight:bold; display:none; margin-top:10px;">$sが足りないので買えません</div>
+  </div>
+</div>
+
+<!-- アカウント設定モーダル -->
+<div class="modal" id="settings-modal">
+  <div class="modal-box settings-modal-box">
+    <!-- 左サイドバー -->
+    <div class="settings-sidebar">
+      <div class="setting-tab active" onclick="switchSetting('profile')">プロフィール設定</div>
+      <div class="setting-tab" onclick="switchSetting('theme')">テーマ・外観</div>
+    </div>
+    <!-- 右コンテンツ -->
+    <div class="settings-content">
+      <button class="close-btn" style="top:10px; right:15px;" onclick="closeSettings()">✕</button>
+      
+      <div id="set-profile" class="setting-pane active">
+        <h2 style="border:none; margin-bottom:20px;">プロフィール設定</h2>
+        
+        <div style="font-size:13px; color:var(--gold); margin-bottom:5px;">表示名</div>
+        <input type="text" id="set-name-input" class="input-field">
+        
+        <div style="font-size:13px; color:var(--gold); margin-bottom:5px;">現在のステータス (役職)</div>
+        <!-- 役職は読み取り専用に -->
+        <div id="set-role-display" style="padding:12px; background:var(--card-bg); border:1px solid #444; border-radius:6px; font-weight:bold; margin-bottom:20px; color:var(--text-sub);">一般ファン</div>
+
+        <button class="btn" style="margin-top:10px;" onclick="updateProfile()">保存して反映</button>
+      </div>
+
+      <div id="set-theme" class="setting-pane">
+        <h2 style="border:none; margin-bottom:20px;">テーマ・外観</h2>
+        <p style="font-size:13px; color:var(--text-sub); margin-bottom:20px;">ポータルサイトの見た目を切り替えます。</p>
+        <div style="display:flex; gap:15px; flex-wrap:wrap;">
+          <button class="btn" style="background:#111; color:#fff;" onclick="changeTheme('dark')">ダークモード (標準)</button>
+          <button class="btn" style="background:#f0f0f0; color:#000;" onclick="changeTheme('light')">ホワイトモード</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="toast-stack" class="toast-stack"></div>
+<script type="module" src="script.js"></script><script type="module" src="script.js"></script></body>
+</html>
